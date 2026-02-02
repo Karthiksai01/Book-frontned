@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://book-backend-6pr3.onrender.com";
 
 // ✅ Upload Document
 export const uploadDoc = async (userId, file) => {
