@@ -7,7 +7,7 @@ import UploadBox from "../components/UploadBox";
 import DoubtPanel from "../components/DoubtPanel";
 export default function Dashboard() {
     const userId = "student1";
-
+    const BASE_URL = "https://book-backend-6pr3.onrender.com";
     const [docs, setDocs] = useState([]);
     const [activeDoc, setActiveDoc] = useState(null);
     const [openDoubt, setOpenDoubt] = useState(false);
@@ -68,7 +68,7 @@ export default function Dashboard() {
                             role: "ai",
                             type: "audio",
                             audioUrl:
-                                "http://127.0.0.1:8000" + res.result.audio_url,
+                                BASE_URL + res.result.audio_url,
                             script: res.result.script,
                             cached: res.result.cached,
                         };

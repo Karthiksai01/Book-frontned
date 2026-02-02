@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
+const BASE_URL = "https://book-backend-6pr3.onrender.com";
 export default function Sidebar({
     docs = [],
     activeDoc,
@@ -24,7 +25,7 @@ export default function Sidebar({
 
         try {
             await axios.delete(
-                `http://127.0.0.1:8000/documents/${userId}/${doc.document_id}`
+                `${BASE_URL}/documents/${userId}/${doc.document_id}`
             );
 
             // reload documents after delete
