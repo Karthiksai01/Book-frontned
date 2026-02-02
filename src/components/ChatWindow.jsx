@@ -133,10 +133,10 @@ export default function ChatWindow({
                                     {m.youtube.map((item, idx) => {
                                         let videoId = "";
 
-                                        if (item.link.includes("watch?v=")) {
-                                            videoId = item.link.split("watch?v=")[1].split("&")[0];
-                                        } else if (item.link.includes("youtu.be/")) {
-                                            videoId = item.link.split("youtu.be/")[1].split("?")[0];
+                                        if (item.includes("watch?v=")) {
+                                            videoId = item.split("watch?v=")[1].split("&")[0];
+                                        } else if (item.includes("youtu.be/")) {
+                                            videoId = item.split("youtu.be/")[1].split("?")[0];
                                         }
 
                                         const thumb = videoId
