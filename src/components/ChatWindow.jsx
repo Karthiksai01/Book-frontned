@@ -7,13 +7,12 @@ export default function ChatWindow({
     activeDoc,
     chat,
     setChat,
-    reloadDocs,
+    runChatAgent,
+    reloadDocs, // ✅ NEW (to refresh docs after upload)
 }) {
     const [query, setQuery] = useState("");
 
-    // =========================
-    // 🔹 Normal Chat (RAG)
-    // =========================
+    // ✅ Send normal RAG chat message
     const handleSend = async () => {
         if (!activeDoc) {
             alert("Select a document first!");
@@ -22,10 +21,7 @@ export default function ChatWindow({
 
         if (!query.trim()) return;
 
-        setChat((prev) => [
-            ...prev,
-            { role: "user", type: "text", text: query },
-        ]);
+        setChat((prev) => [...prev, { role: "user", type: "text", text: query }]);
 
         const payload = {
             user_id: userId,
@@ -46,19 +42,18 @@ export default function ChatWindow({
                 text: res.result || res.error || "No response",
             },
         ]);
+
+
     };
 
     return (
         <div className="chat-window">
-            {/* ========================= */}
-            {/* 🔹 Top Bar */}
-            {/* ========================= */}
+            {/* ✅ Top Bar */}
             <div className="chat-top">
+                {/* ✅ Left: Filename */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <h3 style={{ margin: 0 }}>
-                        {activeDoc
-                            ? activeDoc.filename
-                            : "Select a document to start"}
+                        {activeDoc ? activeDoc.filename : "Select a document to start"}
                     </h3>
 
                     <p style={{ margin: 0, fontSize: "12px", opacity: 0.7 }}>
@@ -66,20 +61,17 @@ export default function ChatWindow({
                     </p>
                 </div>
 
+                {/* ✅ Right: Upload Box */}
                 <div style={{ width: "280px" }}>
                     <UploadBox userId={userId} reloadDocs={reloadDocs} />
                 </div>
             </div>
 
-            {/* ========================= */}
-            {/* 🔹 Messages */}
-            {/* ========================= */}
+            {/* ✅ Messages */}
             <div className="chat-messages">
                 {chat.map((m, i) => (
                     <div key={i} className={`msg-bubble ${m.role}`}>
-                        {/* ========================= */}
-                        {/* 🔹 Audio Response */}
-                        {/* ========================= */}
+                        {/* ✅ Audio */}
                         {m.type === "audio" ? (
                             <>
                                 <p style={{ marginBottom: "10px" }}>
@@ -91,17 +83,12 @@ export default function ChatWindow({
                                 </audio>
 
                                 <details style={{ marginTop: "10px" }}>
-                                    <summary style={{ cursor: "pointer" }}>
-                                        Show Script
-                                    </summary>
+                                    <summary style={{ cursor: "pointer" }}>Show Script</summary>
                                     <p style={{ whiteSpace: "pre-wrap" }}>{m.script}</p>
                                 </details>
                             </>
                         ) : m.type === "reference" ? (
                             <>
-                                {/* ========================= */}
-                                {/* 🔹 Website Links */}
-                                {/* ========================= */}
                                 <h4 style={{ marginBottom: "10px" }}>📌 Websites</h4>
 
                                 <div
@@ -111,35 +98,30 @@ export default function ChatWindow({
                                         gap: "10px",
                                     }}
                                 >
-                                    {m.websites?.length > 0 ? (
-                                        m.websites.map((url, idx) => (
-                                            <a
-                                                key={idx}
-                                                href={url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                style={{
-                                                    background: "#1f2937",
-                                                    padding: "12px",
-                                                    borderRadius: "10px",
-                                                    color: "white",
-                                                    textDecoration: "none",
-                                                }}
-                                            >
-                                                {url}
-                                            </a>
-                                        ))
-                                    ) : (
-                                        <p>No websites found.</p>
-                                    )}
+                                    {m.websites.map((item, idx) => (
+                                        <a
+                                            key={idx}
+                                            href={item.link}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            style={{
+                                                background: "#1f2937",
+                                                padding: "12px",
+                                                borderRadius: "10px",
+                                                color: "white",
+                                                textDecoration: "none",
+                                            }}
+                                        >
+                                            <b>{item.title}</b>
+                                            <p style={{ margin: "6px 0", opacity: 0.85 }}>
+                                                {item.snippet}
+                                            </p>
+                                            <small style={{ opacity: 0.7 }}>{item.link}</small>
+                                        </a>
+                                    ))}
                                 </div>
 
-                                {/* ========================= */}
-                                {/* 🔹 YouTube Links */}
-                                {/* ========================= */}
-                                <h4 style={{ margin: "18px 0 10px" }}>
-                                    🎥 YouTube Videos
-                                </h4>
+                                <h4 style={{ margin: "18px 0 10px" }}>🎥 YouTube Videos</h4>
 
                                 <div
                                     style={{
@@ -148,14 +130,29 @@ export default function ChatWindow({
                                         gap: "10px",
                                     }}
                                 >
-                                    {m.youtube?.length > 0 ? (
-                                        m.youtube.map((url, idx) => (
+                                    {m.youtube.map((item, idx) => {
+                                        let videoId = "";
+
+                                        if (item.link.includes("watch?v=")) {
+                                            videoId = item.link.split("watch?v=")[1].split("&")[0];
+                                        } else if (item.link.includes("youtu.be/")) {
+                                            videoId = item.link.split("youtu.be/")[1].split("?")[0];
+                                        }
+
+                                        const thumb = videoId
+                                            ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                                            : "";
+
+                                        return (
                                             <a
                                                 key={idx}
-                                                href={url}
+                                                href={item.link}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 style={{
+                                                    display: "flex",
+                                                    gap: "12px",
+                                                    alignItems: "center",
                                                     background: "#111827",
                                                     padding: "12px",
                                                     borderRadius: "12px",
@@ -164,12 +161,39 @@ export default function ChatWindow({
                                                     border: "1px solid #374151",
                                                 }}
                                             >
-                                                {url}
+                                                {thumb ? (
+                                                    <img
+                                                        src={thumb}
+                                                        alt="thumbnail"
+                                                        style={{
+                                                            width: "110px",
+                                                            height: "70px",
+                                                            borderRadius: "10px",
+                                                            objectFit: "cover",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: "110px",
+                                                            height: "70px",
+                                                            borderRadius: "10px",
+                                                            background: "#374151",
+                                                        }}
+                                                    />
+                                                )}
+
+                                                <div>
+                                                    <b style={{ display: "block", marginBottom: "6px" }}>
+                                                        {item.title}
+                                                    </b>
+                                                    <p style={{ margin: 0, opacity: 0.8, fontSize: 14 }}>
+                                                        {item.snippet}
+                                                    </p>
+                                                </div>
                                             </a>
-                                        ))
-                                    ) : (
-                                        <p>No YouTube videos found.</p>
-                                    )}
+                                        );
+                                    })}
                                 </div>
                             </>
                         ) : (
@@ -179,9 +203,7 @@ export default function ChatWindow({
                 ))}
             </div>
 
-            {/* ========================= */}
-            {/* 🔹 Input */}
-            {/* ========================= */}
+            {/* ✅ Input */}
             <div className="chat-input">
                 <input
                     value={query}
